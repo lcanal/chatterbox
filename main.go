@@ -1,12 +1,14 @@
 package main
 
 import (
+	"flag"
+	"github.com/lcanal/chatterbox/trace"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"sync"
 	"text/template"
-	"flag"
 )
 
 //templ represents a single template
@@ -29,6 +31,7 @@ func main() {
 	flag.Parse() // Parge them flags
 
 	r := newRoom()
+	r.tracer = trace.New(os.Stdout)
 	http.Handle("/", &templateHandler{filename: "chat.html"})
 	http.Handle("/room", r)
 
