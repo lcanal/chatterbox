@@ -35,7 +35,7 @@ func main() {
 	//Get the room join
 
 	go r.run()
-
+	log.Println("Starting web server on", *addr)
 	//Start the web server
 	if err := http.ListenAndServe(*addr, nil); err != nil {
 		log.Fatal("ListenAndServe Error: ", err)
