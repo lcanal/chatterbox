@@ -35,7 +35,8 @@ func main() {
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
 	http.Handle("/room", r)
 	http.Handle("/login", &templateHandler{filename: "login.html"})
-	http.Handle("/assets/",http.StripPrefix("/assets", http.FileServer(http.Dir("assets/"))))
+	http.HandleFunc("/auth/", loginHandler)
+	http.Handle("/assets/", http.StripPrefix("/assets", http.FileServer(http.Dir("assets/"))))
 
 	//Get the room join
 
