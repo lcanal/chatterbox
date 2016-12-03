@@ -34,6 +34,7 @@ func main() {
 	r.tracer = trace.New(os.Stdout)
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
 	http.Handle("/room", r)
+	http.Handle("/login", &templateHandler{filename: "login.html"})
 	http.Handle("/assets/",http.StripPrefix("/assets", http.FileServer(http.Dir("assets/"))))
 
 	//Get the room join
