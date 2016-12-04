@@ -40,9 +40,9 @@ func main() {
 	flag.Parse() // Parge them flags
 
 	//set up gomniauth
-	gomniauth.SetSecurityKey("x")
+	gomniauth.SetSecurityKey("CustomKey")
 	gomniauth.WithProviders(
-		google.New("x", "x",
+		google.New("APIKEY", "SECRET",
 			"http://localhost:8080/auth/callback/google"),
 	)
 	r := newRoom()

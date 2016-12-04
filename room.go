@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gorilla/websocket"
 	"github.com/lcanal/chatterbox/trace"
+	"github.com/stretchr/objx"
 	"log"
 	"net/http"
 )
@@ -10,7 +11,7 @@ import (
 type room struct {
 	// forward is a channel that holds incoming messages
 	// that should be forwarded to the other clients.
-	forward chan []byte
+	forward chan *message
 
 	//join is a channel for clients wishing to join the room
 	join chan *client
@@ -28,7 +29,7 @@ type room struct {
 
 func newRoom() *room {
 	return &room{
-		forward: make(chan []byte),
+		forward: make(chan *message),
 		join:    make(chan *client),
 		leave:   make(chan *client),
 		clients: make(map[*client]bool),
@@ -49,7 +50,7 @@ func (r *room) run() {
 			close(client.send)
 			r.tracer.Trace("Client left")
 		case msg := <-r.forward:
-			r.tracer.Trace("Message received: ", string(msg))
+			r.tracer.Trace("Message received: ", msg.Message)
 			//Forward messages to all clients
 			for client := range r.clients {
 				select {
@@ -81,10 +82,17 @@ func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	authCookie, err := req.Cookie("auth")
+	if err != nil {
+		log.Fatal("Failed to get auth cookie:", err)
+		return
+	}
+
 	client := &client{
-		socket: socket,
-		send:   make(chan []byte, messageBufferSize),
-		room:   r,
+		socket:   socket,
+		send:     make(chan *message, messageBufferSize),
+		room:     r,
+		userData: objx.MustFromBase64(authCookie.Value),
 	}
 
 	r.join <- client
